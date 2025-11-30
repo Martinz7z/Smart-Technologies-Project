@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 
 def load_cifar10_data():
     """Load CIFAR-10 dataset and keep only the classes we need"""
@@ -145,6 +146,68 @@ def combine_datasets():
     
     return x_train_combined, y_train_combined, x_test_combined, y_test_combined, all_classes
 
+def explore_data(x_train, y_train, x_test, y_test, class_names):
+    """Explore and visualize the dataset"""
+    print("\n=== Exploring Dataset ===")
+    
+    # Basic statistics
+    print(f"Training set: {x_train.shape[0]} images")
+    print(f"Test set: {x_test.shape[0]} images")
+    print(f"Image size: {x_train.shape[1:]}")
+    print(f"Number of classes: {len(class_names)}")
+    
+    # Class distribution
+    train_class_counts = np.bincount(y_train)
+    test_class_counts = np.bincount(y_test)
+    
+    print("\nClass distribution in training set:")
+    for i, count in enumerate(train_class_counts):
+        print(f"  {class_names[i]}: {count} images")
+    
+    print("\nClass distribution in test set:")
+    for i, count in enumerate(test_class_counts):
+        print(f"  {class_names[i]}: {count} images")
+    
+    # Plot class distribution
+    plt.figure(figsize=(12, 6))
+    
+    plt.subplot(1, 2, 1)
+    plt.bar(range(len(class_names)), train_class_counts)
+    plt.title('Training Set Class Distribution')
+    plt.xlabel('Class')
+    plt.ylabel('Number of Images')
+    plt.xticks(rotation=45)
+    
+    plt.subplot(1, 2, 2)
+    plt.bar(range(len(class_names)), test_class_counts)
+    plt.title('Test Set Class Distribution')
+    plt.xlabel('Class')
+    plt.ylabel('Number of Images')
+    plt.xticks(rotation=45)
+    
+    plt.tight_layout()
+    plt.savefig('class_distribution.png')
+    plt.show()
+    
+    # Show sample images from each class
+    print("\nShowing sample images from each class...")
+    plt.figure(figsize=(15, 10))
+    
+    for class_idx in range(len(class_names)):
+        # Find first image of this class
+        sample_idx = np.where(y_train == class_idx)[0][0]
+        
+        plt.subplot(4, 6, class_idx + 1)
+        plt.imshow(x_train[sample_idx])
+        plt.title(f'{class_names[class_idx]}')
+        plt.axis('off')
+    
+    plt.tight_layout()
+    plt.savefig('sample_images.png')
+    plt.show()
+    
+    return train_class_counts, test_class_counts
+
 # Test section at the bottom
 if __name__ == "__main__":
     print("=== Testing Combined Dataset ===")
@@ -154,3 +217,6 @@ if __name__ == "__main__":
     print(f"Training: {x_train.shape} images")
     print(f"Testing: {x_test.shape} images")
     print(f"Number of classes: {len(all_classes)}")
+    
+    # Explore the data
+    explore_data(x_train, y_train, x_test, y_test, all_classes)
